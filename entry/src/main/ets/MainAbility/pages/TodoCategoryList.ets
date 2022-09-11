@@ -1,130 +1,24 @@
+import { TodoListItem } from './TodoListItem';
 import router from '@ohos.router';
 import { TodoData } from '../model/TodoData'
-import { initializeOnStartup ,finishItem} from '../model/TodoDataModels'
+import { initializeOnStartup, finishItem } from '../model/TodoDataModels'
+import { ModifyDialog } from './ModifyDialog'
+import { AddItemDialog } from './AddItemDialog'
 
-@Component
-struct TodoListItem {
-  @State todoItem: TodoData = {id:'0',name:' ',image:null,ddl:new Date(),star:true,description: ' ',finished:false}
-//  @State Starred:boolean = this.todoItem.star
-//  @State res:Resource =this.todoItem.star===true ? $r('app.media.starFilled') : $r('app.media.star')
- todoArray: Array<TodoData>
-  build() {
+let objectArraySort = function (keyName) {
+  return function (objectN, objectM) {
+    var valueN = objectN[keyName]
+    var valueM = objectM[keyName]
+    if (valueN < valueM) {
+      console.log(valueN + '**' + valueM)
+      return 1
+    }
 
-//    Navigator({ target: 'pages/TodoDetail' }) {
-
-    GridContainer({ columns: 6, gutter: 10, margin: 20 }) {
-        Row() {
-          if (this.todoItem.finished === true) {
-            Image($r('app.media.CheckCircleRegular')).objectFit(ImageFit.ScaleDown).width(27).height(27).useSizeType({
-              xs: { span: 1, offset: 0 },
-              sm: { span: 1, offset: 0 },
-              md: { span: 1, offset: 0 },
-              lg: { span: 1, offset: 0 },
-            })
-            .onClick(()=>{
-//              finishItem(this.todoArray,this.todoItem.id,this.todoItem.finished)
-//              console.log(this.todoArray.toString())
-//              router.push({
-//                url:'pages/TodoCategoryList'
-//              })
-              this.todoItem.finished= !this.todoItem.finished
-            })
-          }
-          else {
-            Image($r('app.media.CircleRegular')).objectFit(ImageFit.ScaleDown).width(27).height(27).useSizeType({
-              xs: { span: 1, offset: 0 },
-              sm: { span: 1, offset: 0 },
-              md: { span: 1, offset: 0 },
-              lg: { span: 1, offset: 0 },
-            }).onClick(()=>{
-//              this.todoItem.finished = !this.todoItem.finished
-//              console.log(this.todoItem.finished.toString())
-//              router.push({
-//                url:'pages/TodoCategoryList'
-//              })
-              this.todoItem.finished= !this.todoItem.finished
-            })
-          }
-          Column() {
-            Text(this.todoItem.name)
-              .fontSize(14)
-            .textAlign(TextAlign.Center)
-            .maxLines(3)
-            .lineHeight(20)
-            .textOverflow({overflow:TextOverflow.Ellipsis})
-              .onClick(()=>{
-                console.log(this.todoItem.name)
-                router.push({
-                  url:'pages/TodoDetail',
-
-                  params:{
-                    data:{todoDataa:this.todoItem},
-                  }
-                })
-              })
-            Text(this.todoItem.ddl.getMonth().toString()+'月'+this.todoItem.ddl.getDate().toString()+'日周'
-            +this.todoItem.ddl.getDay().toString()+' '+this.todoItem.ddl.getHours().toString()+':'
-            +this.todoItem.ddl.getMinutes().toString())
-              .fontSize(14)
-              .onClick(()=>{
-                console.log(this.todoItem.name)
-                router.push({
-                  url:'pages/TodoDetail',
-
-                  params:{
-                    data:{todoDataa:this.todoItem},
-                  }
-                })
-              })
-          }.useSizeType({
-            xs: { span: 4, offset: 1 },
-            sm: { span: 4, offset: 1 },
-            md: { span: 4, offset: 1 },
-            lg: { span: 4, offset: 1 },
-          })
-
-//          Image(this.res).objectFit(ImageFit.ScaleDown).width(27).height(27).useSizeType({
-//            xs: { span: 1, offset: 5 },
-//            sm: { span: 1, offset: 5 },
-//            md: { span: 1, offset: 5 },
-//            lg: { span: 1, offset: 5 },
-//          })
-//            .onClick(()=>{
-//            this.todoItem.star= !this.todoItem.star
-//          })
-          if (this.todoItem.star === true) {
-            Image($r('app.media.starFilled')).objectFit(ImageFit.ScaleDown).width(27).height(27).useSizeType({
-              xs: { span: 1, offset: 5 },
-              sm: { span: 1, offset: 5 },
-              md: { span: 1, offset: 5 },
-              lg: { span: 1, offset: 5 },
-            })
-//              .onClick(()=>{
-////              this.todoItem.star = !this.todoItem.star
-////              console.log(this.todoItem.star.toString())
-//                this.todoItem.star= !this.todoItem.star
-//              })
-          }
-          else {
-            Image($r('app.media.star')).objectFit(ImageFit.ScaleDown).width(27).height(27).useSizeType({
-              xs: { span: 1, offset: 5 },
-              sm: { span: 1, offset: 5 },
-              md: { span: 1, offset: 5 },
-              lg: { span: 1, offset: 5 },
-            })
-//              .onClick(()=>{
-////              this.todoItem.star = !this.todoItem.star
-////              console.log(this.todoItem.star.toString())
-//                this.todoItem.star= !this.todoItem.star
-//
-//              })
-          }
-        }
-
-      }.margin({ top: 8 }).backgroundColor(Color.White).opacity(0.8).borderRadius(8).padding(5)
-
-//}
-//          .params({ TodoData: this.todoItem })
+    else if (valueN > valueM) {
+      console.log(valueM + '**' + valueN)
+      return -1
+    }
+    else return 0
   }
 }
 
@@ -132,36 +26,138 @@ struct TodoListItem {
 @Component
 struct TodoList {
   @State todoItems: TodoData[] = initializeOnStartup();
+  @State tempName: string = '任务名称'
+  @State tempImage: Resource = undefined
+  @State tempDdl: Date = new Date()
+  @State tempStar: boolean = false
+  @State tempDesc: string = '任务描述'
+  @State tempFinished: boolean = false
+  dialogController: CustomDialogController = new CustomDialogController({
+    builder: AddItemDialog({
+      cancel: this.onCancel,
+      confirm: this.onAccept,
+      tempName: $tempName,
+      tempImage: $tempImage,
+      tempDesc: $tempDesc,
+      tempFinished: $tempFinished,
+      todoItems: $todoItems
+    }),
+    cancel: this.existApp,
+    autoCancel: true
+  })
 
   build() {
     Column() {
-      Flex({ justifyContent: FlexAlign.Start, alignItems: ItemAlign.Center }) {
+      Flex({ justifyContent: FlexAlign.SpaceBetween, alignItems: ItemAlign.Center }) {
         Text('我的任务')
-          .fontSize(25)
+          .fontSize(24)
           .fontWeight(FontWeight.Medium)
-          .margin({ left: 20 ,top:20})
-        .fontColor(Color.White)
+          .margin({ left: 20, })
+          .fontColor(Color.White)
+//        Button('ddl').onClick(()=>{
+//          this.todoItems.sort((a: TodoData, b: TodoData) => {
+//            return a.ddl.getTime() - b.ddl.getTime()
+//          })
+//          this.todoItems.forEach(element => {
+//            console.log(JSON.stringify(element))
+//          });
+//        })
+//        Button('name').onClick(()=>{
+//          this.todoItems.sort((a: TodoData, b: TodoData) => {
+//            return a.name.localeCompare(b.name)
+//          })
+//          this.todoItems.forEach(element => {
+//            console.log(JSON.stringify(element))
+//          });
+//        })
+        Select(
+          [{ value: '按截止日期排序' },
+           { value: '按创建时间排序' },
+           { value: '按名称排序' },
+          ])
+
+          .margin({ right: 20 })
+          .value('排序方式')
+          .fontColor(Color.White)
+          .selectedOptionFontColor(Color.Black)
+          .optionFontColor(Color.Black)
+          .selectedOptionFont({ weight: FontWeight.Bold })
+            //          .optionFont({size: 30, weight: 400, family: 'serif', style: FontStyle.Normal })
+          .onSelect((index: number) => {
+            console.info("Select:" + index)
+            switch (index) {
+              case 0:
+                this.todoItems.sort((a: TodoData, b: TodoData) => {
+                  return a.ddl.getTime() - b.ddl.getTime()
+                })
+                this.todoItems.forEach(element => {
+                  console.log(JSON.stringify(element))
+                });
+                break;
+              case 1:
+                this.todoItems.sort((a: TodoData, b: TodoData) => {
+                  return Number(a.id) - Number(b.id)
+                })
+                this.todoItems.forEach(element => {
+                  console.log(JSON.stringify(element))
+                });
+                break;
+              case 2:
+                this.todoItems.sort((a: TodoData, b: TodoData) => {
+                  return a.name.localeCompare(b.name)
+                })
+                this.todoItems.forEach(element => {
+                  console.log(JSON.stringify(element))
+                });
+                break;
+            }
+          })
+        //        Button('排序方式').backgroundColor(Color.Orange).opacity(0.8)
+        //          .margin({right:20})
+        //          .onClick(()=>{
+        //          this.todoItems.sort(objectArraySort('name'))
+        //          this.todoItems.sort((a:TodoData,b:TodoData)=>{
+        //            return a.ddl.getTime() - b.ddl.getTime()
+        //          })
+        //          this.todoItems.forEach(element => {
+        //            console.log(JSON.stringify(element))
+        //          });
+        //        })
       }
       .height('7%')
-//      .backgroundColor('#FFf1f3f5')
 
       List() {
         ForEach(this.todoItems, item => {
           ListItem() {
-            TodoListItem({ todoItem: item,todoArray:this.todoItems })
+            TodoListItem({ todoItem: item, todoArray: $todoItems })
           }
         }, item => item.id.toString())
-
       }
       .height('93%')
-      Button('+').type(ButtonType.Circle).position({x: 280, y: 700}).borderRadius(25).fontSize(25).fontWeight(FontWeight.Bold).onClick(()=>{
-//        router.push({url:'pages/addTodoItem'})
-        this.todoItems.push(new TodoData('新任务',null,new Date(),false,'请输入描述',false))
-      })
 
-    }.backgroundImage($r('app.media.bg4'))
-    .backgroundImageSize(ImageSize.Contain)
+      Button('+')
+        .type(ButtonType.Circle)
+        .position({ x: '80%', y: '88%' })
+        .borderRadius(25)
+        .fontSize(25)
+        .fontWeight(FontWeight.Bold)
+        .onClick(() => {
+          this.dialogController.open()
+          //                  this.todoItems.push(new TodoData('新任务',null,new Date(),false,'请输入描述',false))
+        })
+    }.backgroundImage($r('app.media.bg3'))
+    .backgroundImageSize(ImageSize.Auto)
+  }
 
+  onCancel() {
+    console.info('Callback when the first button is clicked')
+  }
 
+  onAccept() {
+    console.info('Callback when the second button is clicked')
+  }
+
+  existApp() {
+    console.info('Click the callback in the blank area')
   }
 }

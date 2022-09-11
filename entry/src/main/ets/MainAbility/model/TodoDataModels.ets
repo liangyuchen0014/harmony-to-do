@@ -32,7 +32,7 @@ let TodoComposition: any[]=[
   },
   {
     name: '点击下方加号按钮可以新建任务',
-    ddl:new Date(2022, 8, 31, 15, 30, 0, 0),
+    ddl:new Date(2022, 8, 20, 15, 30, 0, 0),
     star:false,
     description:'点击加号可以新建任务并编辑任务详情',
     image:$r('app.media.ava'),
@@ -45,5 +45,21 @@ let TodoComposition: any[]=[
     description:'点击加号可以新建任务并编辑任务详情',
     image:$r('app.media.ava'),
     finished:false
+  },
+  {
+    name: '在特定任务上左滑，可以删除该任务',
+    ddl:new Date(2022, 8, 15, 15, 30, 0, 0),
+    star:false,
+    description:':)',
+    image:$r('app.media.ava'),
+    finished:false
+  },
+  {
+    name: '在特定任务上右滑，可以编辑该任务',
+    ddl:new Date(2022, 8, 11, 15, 30, 0, 0),
+    star:true,
+    description:':)',
+    image:$r('app.media.ava'),
+    finished:true
   },
 ]
