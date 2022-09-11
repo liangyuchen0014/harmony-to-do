@@ -74,6 +74,9 @@ struct TodoList {
           [{ value: '按截止日期排序' },
            { value: '按创建时间排序' },
            { value: '按名称排序' },
+           { value: '星标优先'},
+           { value: '未完成优先'}
+
           ])
 
           .margin({ right: 20 })
@@ -105,6 +108,22 @@ struct TodoList {
               case 2:
                 this.todoItems.sort((a: TodoData, b: TodoData) => {
                   return a.name.localeCompare(b.name)
+                })
+                this.todoItems.forEach(element => {
+                  console.log(JSON.stringify(element))
+                });
+                break;
+              case 3:
+                this.todoItems.sort((a: TodoData, b: TodoData) => {
+                  return Number(b.star) - Number(a.star)
+                })
+                this.todoItems.forEach(element => {
+                  console.log(JSON.stringify(element))
+                });
+                break;
+              case 4:
+                this.todoItems.sort((a: TodoData, b: TodoData) => {
+                  return Number(a.finished) - Number(b.finished)
                 })
                 this.todoItems.forEach(element => {
                   console.log(JSON.stringify(element))
